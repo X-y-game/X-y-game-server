@@ -6,12 +6,11 @@ import logger from "morgan";
 import createError from "http-errors";
 import cookieParser from "cookie-parser";
 import indexRouter from "./routes/index";
+import socket from "../socket";
 import "./db";
 
 const app = express();
 
-app.set("view engine", "pug");
-app.set("views", __dirname + "/views");
 app.set("port", process.env.PORT || 8080);
 
 app.use("/public", express.static(__dirname + "/public"));
@@ -42,3 +41,4 @@ const handleListen = () =>
 
 const server = http.createServer(app);
 server.listen(process.env.PORT, handleListen);
+socket(server);
