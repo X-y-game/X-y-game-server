@@ -9,7 +9,6 @@ export default (server) => {
   });
 
   const room = io.of("/room");
-  const channel = io.of("/channel");
 
   io.on("connection", (socket) => {
     const req = socket.request;
@@ -22,10 +21,16 @@ export default (server) => {
       console.log(event, "check all Event");
     });
 
-    // 2. 이벤트 리스너 붙이기
+    room.on("connection", (socket) => {
+      console.log("room 네임스페이스에 접속");
+      socket.on("disconnect", () => {
+        console.log("room 네임스페이스 접속 해제");
+      });
+    });
+
+    // DisConnect
     socket.on("disconnect", () => {
       console.log("클라이언트 접속 해제", ip, socket.id);
-      clearInterval(socket.interval);
     });
 
     socket.on("error", (error) => {

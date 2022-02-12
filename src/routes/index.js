@@ -3,6 +3,7 @@ import express from "express";
 import {
   getChannels,
   makeChannel,
+  removeChannel,
   getRooms,
   makeRooms,
   getTeams,
@@ -15,7 +16,11 @@ router.get("/", (req, res) => {
   res.json({ title: "XY-game" });
 });
 
-router.route("/channel").get(getChannels).post(makeChannel);
+router
+  .route("/channel")
+  .get(getChannels)
+  .post(makeChannel)
+  .delete(removeChannel);
 router.post("/room", makeRooms);
 router.get("/room/:channelId", getRooms);
 router.get("/team/:roomId", getTeams);

@@ -1,4 +1,5 @@
 import Channel from "../models/channel";
+import room from "../models/room";
 import Room from "../models/room";
 import Team from "../models/team";
 
@@ -20,6 +21,26 @@ export const makeChannel = async (req, res, next) => {
     });
     res.json({ message: "success", newChannel });
   } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+export const removeChannel = async (req, res, next) => {
+  try {
+    const { channelId } = req.body;
+    const channel = await Channel.findById(channelId);
+    const Rooms = await Room.find({ _id: { $in: channel.rooms } });
+    Rooms.forEach(async (room) => {
+      await Team.deleteMany({ _id: { $in: room.teams } });
+    });
+
+    const deleteChannel = await Channel.findByIdAndDelete(channelId);
+    await Room.deleteMany({ _id: { $in: deleteChannel.rooms } });
+
+    res.json({ message: "success to delete" });
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };
