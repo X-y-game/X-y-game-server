@@ -8,11 +8,6 @@ const channelSchema = new Schema(
       type: String,
       required: true,
     },
-    max: {
-      type: Number,
-      required: true,
-      default: 16,
-    },
     password: String,
     rooms: [{ type: mongoose.Types.ObjectId, ref: "Room" }],
   },

@@ -1,12 +1,12 @@
 import socketIo from "socket.io";
 
 export default (server) => {
-  const io = socketIo(server, { path: "/socket.io" });
-  const test = socketIo(server);
-
-  // console.log(io);
-  // console.log("----------------------------");
-  // console.log("test:", test);
+  const io = socketIo(server, {
+    cors: {
+      origin: "http://localhost:3000",
+      methods: ["GET", "POST"],
+    },
+  });
 
   const room = io.of("/room");
   const channel = io.of("/channel");
@@ -14,12 +14,12 @@ export default (server) => {
   io.on("connection", (socket) => {
     const req = socket.request;
     const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-    console.log("새로운 클라이언트 접속!", ip, socket.id);
+    //console.log("새로운 클라이언트 접속!", ip, socket.id);
 
-    //All event
+    // All event
     socket.onAny((event) => {
-      //모든 이벤트 감시
-      console.log(event);
+      // 모든 이벤트 감시
+      console.log(event, "check all Event");
     });
 
     // 2. 이벤트 리스너 붙이기
