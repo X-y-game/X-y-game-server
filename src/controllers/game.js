@@ -58,8 +58,10 @@ export const makeRooms = async (req, res, next) => {
 
 export const getTeams = async (req, res, next) => {
   try {
-    const teamLists = await Team.find({});
-    res.json({ teamLists });
+    const { roomId } = req.params;
+    const teamLists = await Room.findById(roomId).populate("teams");
+
+    res.json({ teamLists: teamLists.teams });
   } catch (error) {
     next(error);
   }
