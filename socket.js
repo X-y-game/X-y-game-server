@@ -1,35 +1,63 @@
 import socketIo from "socket.io";
 
 export default (server) => {
-  const io = socketIo(server, {
-    cors: {
-      origin: "http://localhost:3000",
-      methods: ["GET", "POST"],
-    },
-  });
+	const io = socketIo(server, {
+		cors: {
+			origin: "http://localhost:3000",
+			methods: ["GET", "POST"],
+		},
+	});
 
-  const room = io.of("/room");
-  const channel = io.of("/channel");
+	const room = io.of("/room");
+	const channel = io.of("/channel");
+	let activeRooms = {};
 
-  io.on("connection", (socket) => {
-    const req = socket.request;
-    const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-    //console.log("새로운 클라이언트 접속!", ip, socket.id);
+	io.on("connection", (socket) => {
+		const req = socket.request;
+		const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+		// console.log("새로운 클라이언트 접속!", ip, socket.id);
 
-    // All event
-    socket.onAny((event) => {
-      // 모든 이벤트 감시
-      console.log(event, "check all Event");
-    });
+		socket.on("join", (roomName) => {
+			console.log(`Socket ${socket.id} joining ${roomName}`);
+			socket.join(roomName);
+		});
 
-    // 2. 이벤트 리스너 붙이기
-    socket.on("disconnect", () => {
-      console.log("클라이언트 접속 해제", ip, socket.id);
-      clearInterval(socket.interval);
-    });
+		socket.on("select_team", (chId, roomId, roomName, teamId) => {
+			if (chId === undefined || roomId === undefined || teamId === undefined || teamId === 0) {
+				return;
+			}
+			if (roomName in activeRooms) {
+				activeRooms[roomName][teamId - 1] = 1;
+			} else {
+				console.log(`채널${chId}, 룸${roomId}이 활성화 되었습니다`);
+				activeRooms[roomName] = [0, 0, 0, 0];
+				activeRooms[roomName][teamId - 1] = 1;
+			}
+			console.log(activeRooms);
+		});
 
-    socket.on("error", (error) => {
-      console.log(error);
-    });
-  });
+		socket.on("check_teams_ready", (roomName) => {
+			let canStart = false;
+			if (activeRooms[roomName] != null && Object.values(activeRooms[roomName]).toString() == [1, 1, 1, 1]) {
+				canStart = true;
+			}
+			socket.to(roomName).emit("can_start", canStart);
+		});
+
+		// All event
+		socket.onAny((event) => {
+			// 모든 이벤트 감시
+			console.log(event, "check all Event");
+		});
+
+		// 2. 이벤트 리스너 붙이기
+		socket.on("disconnect", () => {
+			console.log("클라이언트 접속 해제", ip, socket.id);
+			clearInterval(socket.interval);
+		});
+
+		socket.on("error", (error) => {
+			console.log(error);
+		});
+	});
 };
