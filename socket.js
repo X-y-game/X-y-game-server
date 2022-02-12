@@ -27,21 +27,18 @@ export default (server) => {
 				return;
 			}
 			if (roomName in activeRooms) {
+				let canStart = false;
 				activeRooms[roomName][teamId - 1] = 1;
+				if (Object.values(activeRooms[roomName]).toString() == [1, 1, 1, 1]) {
+					canStart = true;
+				}
+				socket.to(roomName).emit("can_start", canStart);
 			} else {
 				console.log(`채널${chId}, 룸${roomId}이 활성화 되었습니다`);
 				activeRooms[roomName] = [0, 0, 0, 0];
 				activeRooms[roomName][teamId - 1] = 1;
 			}
 			console.log(activeRooms);
-		});
-
-		socket.on("check_teams_ready", (roomName) => {
-			let canStart = false;
-			if (activeRooms[roomName] != null && Object.values(activeRooms[roomName]).toString() == [1, 1, 1, 1]) {
-				canStart = true;
-			}
-			socket.to(roomName).emit("can_start", canStart);
 		});
 
 		// All event
