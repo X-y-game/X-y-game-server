@@ -16,7 +16,9 @@ router.get("/", (req, res) => {
 });
 
 router.route("/channel").get(getChannels).post(makeChannel);
-router.route("/room").get(getRooms).post(makeRooms);
+router.post("/room", makeRooms);
+router.get("/room/:channelId", getRooms);
+
 router.route("/team").get(getTeams).post(makeTeams);
 
 export default router;

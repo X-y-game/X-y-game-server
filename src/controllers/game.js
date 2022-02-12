@@ -26,8 +26,10 @@ export const makeChannel = async (req, res, next) => {
 
 export const getRooms = async (req, res, next) => {
   try {
-    const roomLists = await Room.find({});
-    res.json({ roomLists });
+    const { channelId } = req.params;
+    const roomLists = await Channel.findById(channelId).populate("rooms");
+
+    res.json({ roomLists: roomLists.rooms });
   } catch (error) {
     next(error);
   }
