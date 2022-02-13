@@ -1,4 +1,5 @@
 import Channel from "../models/channel";
+import room from "../models/room";
 import Room from "../models/room";
 import Team from "../models/team";
 
@@ -20,14 +21,36 @@ export const makeChannel = async (req, res, next) => {
     });
     res.json({ message: "success", newChannel });
   } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+export const removeChannel = async (req, res, next) => {
+  try {
+    const { channelId } = req.body;
+    const channel = await Channel.findById(channelId);
+    const Rooms = await Room.find({ _id: { $in: channel.rooms } });
+    Rooms.forEach(async (room) => {
+      await Team.deleteMany({ _id: { $in: room.teams } });
+    });
+
+    const deleteChannel = await Channel.findByIdAndDelete(channelId);
+    await Room.deleteMany({ _id: { $in: deleteChannel.rooms } });
+
+    res.json({ message: "success to delete" });
+  } catch (error) {
+    console.log(error);
     next(error);
   }
 };
 
 export const getRooms = async (req, res, next) => {
   try {
-    const roomLists = await Room.find({});
-    res.json({ roomLists });
+    const { channelId } = req.params;
+    const roomLists = await Channel.findById(channelId).populate("rooms");
+
+    res.json({ roomLists: roomLists.rooms });
   } catch (error) {
     next(error);
   }
@@ -56,8 +79,10 @@ export const makeRooms = async (req, res, next) => {
 
 export const getTeams = async (req, res, next) => {
   try {
-    const teamLists = await Team.find({});
-    res.json({ teamLists });
+    const { roomId } = req.params;
+    const teamLists = await Room.findById(roomId).populate("teams");
+
+    res.json({ teamLists: teamLists.teams });
   } catch (error) {
     next(error);
   }

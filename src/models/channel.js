@@ -7,6 +7,7 @@ const channelSchema = new Schema(
     title: {
       type: String,
       required: true,
+      unique: true,
     },
     password: String,
     rooms: [{ type: mongoose.Types.ObjectId, ref: "Room" }],
