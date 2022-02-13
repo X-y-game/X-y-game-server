@@ -8,6 +8,8 @@ import {
   makeRooms,
   getTeams,
   makeTeams,
+  deleteRoom,
+  deleteTeam,
 } from "../controllers/game";
 
 const router = express.Router();
@@ -22,8 +24,10 @@ router
   .post(makeChannel)
   .delete(removeChannel);
 router.post("/room", makeRooms);
+router.delete("/room", deleteRoom);
 router.get("/room/:channelId", getRooms);
 router.get("/team/:roomId", getTeams);
 router.post("/team", makeTeams);
+router.delete("/team", deleteTeam);
 
 export default router;

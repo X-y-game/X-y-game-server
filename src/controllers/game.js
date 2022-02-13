@@ -2,6 +2,7 @@ import Channel from "../models/channel";
 import room from "../models/room";
 import Room from "../models/room";
 import Team from "../models/team";
+import User from "../models/user";
 
 export const getChannels = async (req, res, next) => {
   try {
@@ -103,6 +104,28 @@ export const makeTeams = async (req, res, next) => {
       { new: true }
     );
     res.json({ message: "success", newTeam });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteRoom = async (req, res, next) => {
+  try {
+    const { roomId } = req.body;
+    const deletedRoom = await Room.findByIdAndDelete(roomId);
+    await Team.deleteMany({ _id: { $in: deletedRoom.teams } });
+    res.json({ message: "success to delete room" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteTeam = async (req, res, next) => {
+  try {
+    const { teamId } = req.body;
+    const deletedTeam = await Team.findByIdAndDelete(teamId);
+    await User.deleteMany({ _id: { $in: deletedTeam.users } });
+    res.json({ message: "success to delete team" });
   } catch (error) {
     next(error);
   }
