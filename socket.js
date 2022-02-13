@@ -9,11 +9,36 @@ export default (server) => {
   });
 
   const room = io.of("/room");
+  let activeRooms = {};
 
   io.on("connection", (socket) => {
     const req = socket.request;
     const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
     //console.log("새로운 클라이언트 접속!", ip, socket.id);
+    
+    socket.on("join", (roomName) => {
+			console.log(`Socket ${socket.id} joining ${roomName}`);
+			socket.join(roomName);
+		});
+
+		socket.on("select_team", (chId, roomId, roomName, teamId) => {
+			if (chId === undefined || roomId === undefined || teamId === undefined || teamId === 0) {
+				return;
+			}
+			if (roomName in activeRooms) {
+				let canStart = false;
+				activeRooms[roomName][teamId - 1] = 1;
+				if (Object.values(activeRooms[roomName]).toString() == [1, 1, 1, 1]) {
+					canStart = true;
+				}
+				socket.to(roomName).emit("can_start", canStart);
+			} else {
+				console.log(`채널${chId}, 룸${roomId}이 활성화 되었습니다`);
+				activeRooms[roomName] = [0, 0, 0, 0];
+				activeRooms[roomName][teamId - 1] = 1;
+			}
+			console.log(activeRooms);
+		});
 
     // All event
     socket.onAny((event) => {
