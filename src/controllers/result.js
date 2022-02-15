@@ -28,23 +28,3 @@ export function getRoundResult(data) {
 			return getScore(-100, 0, data);
 	}
 }
-
-// 중간/최종 결과
-export function getMidResult(result, score, round) {
-	let midResult = [];
-	for (let r = 0; r < round - 1; r++) {
-		for (let i = 0; i < 4; i++) {
-			midResult.push([result[i][r], score[i][r]]);
-		}
-  }
-  return midResult
-}
-
-// 현재 라운드까지 팀 누적 점수
-export function getCurTeamScore(score, team, round) {
-	let teamScore = 0;
-	for (let r = 0; r < round - 1; r++) {
-		teamScore += score[r][team - 1];
-  }
-  return teamScore
-}
