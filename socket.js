@@ -13,11 +13,21 @@ export default (server) => {
 	let activeRooms = {};
 	let results = {};
 	let scores = {};
+	let curRound = {};
 
 	io.on("connection", (socket) => {
 		socket.on("join", (roomName) => {
 			console.log(`Socket ${socket.id} joining ${roomName}`);
 			socket.join(roomName);
+			if (roomName in curRound) {
+				io.to(roomName).emit("cur_round", curRound[roomName]);
+			}
+			if (roomName in results) {
+				io.to(roomName).emit("cur_result", results[roomName]);
+			}
+			if (roomName in scores) {
+				io.to(roomName).emit("cur_score", scores[roomName]);
+			}
 		});
 
 		socket.on("select_team", (chId, roomId, roomName, teamId) => {
@@ -35,6 +45,7 @@ export default (server) => {
 			} else {
 				console.log(`채널${chId}, 룸${roomId}이 활성화 되었습니다`);
 				activeRooms[roomName] = [0, 0, 0, 0];
+				curRound[roomName] = 1;
 				activeRooms[roomName][teamId - 1] = 1;
 			}
 
@@ -42,6 +53,7 @@ export default (server) => {
 		});
 
 		socket.on("select_card", (roomName, team, round, mycard) => {
+			curRound[roomName] = round;
 			round -= 1;
 			team = team.slice(4);
 			if (roomName in results) {
@@ -49,6 +61,7 @@ export default (server) => {
 					results[roomName][round][team - 1] = mycard;
 				}
 				if (!results[roomName][round].includes("")) {
+					curRound[roomName]++;
 					let roundResult = getRoundResult(Object.values(results[roomName][round]));
 					if (roomName in scores) {
 						scores[roomName][round] = roundResult;
@@ -59,8 +72,9 @@ export default (server) => {
 						}
 						scores[roomName][round] = roundResult;
 					}
-					console.log("finish", results[roomName][round], roundResult);
+
 					io.to(roomName).emit("show_round_score", getRoundResult(Object.values(results[roomName][round])));
+
 					io.to(roomName).emit("show_score", scores[roomName]);
 					io.to(roomName).emit("show_select", results[roomName]);
 				}
@@ -71,7 +85,6 @@ export default (server) => {
 				}
 				results[roomName][round][team - 1] = mycard;
 			}
-			console.log(results);
 		});
 
 		// All event
