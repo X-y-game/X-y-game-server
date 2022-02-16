@@ -8,7 +8,22 @@ function getScore(x, y, data) {
 }
 
 // 해당 라운드 카드 선택에 따른 점수 계산
-export function getRoundResult(data) {
+export function getRoundResult(data, round) {
+	let weight = 1;
+	switch (round) {
+		case 5:
+			weight = 3;
+			break;
+		case 8:
+			weight = 5;
+			break;
+		case 10:
+			weight = 10;
+			break;
+		default:
+			weight = 1;
+			break;
+	}
 	let countX = 0;
 	data.forEach((element) => {
 		if (element == "X") {
@@ -17,14 +32,14 @@ export function getRoundResult(data) {
 	});
 	switch (countX) {
 		case 0:
-			return getScore(0, 100, data);
+			return getScore(0, 100 * weight, data);
 		case 1:
-			return getScore(300, -100, data);
+			return getScore(300 * weight, -100 * weight, data);
 		case 2:
-			return getScore(200, -200, data);
+			return getScore(200 * weight, -200 * weight, data);
 		case 3:
-			return getScore(100, -300, data);
+			return getScore(100 * weight, -300 * weight, data);
 		case 4:
-			return getScore(-100, 0, data);
+			return getScore(-100 * weight, 0, data);
 	}
 }
