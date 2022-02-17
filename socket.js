@@ -31,12 +31,7 @@ export default (server) => {
 
     socket.on("select_team", (chId, roomId, roomName, teamId) => {
       let canStart = false;
-      if (
-        chId === undefined ||
-        roomId === undefined ||
-        teamId === undefined ||
-        teamId === 0
-      ) {
+      if (chId === undefined || roomId === undefined || teamId === undefined || teamId === 0) {
         return;
       }
       if (roomName in activeRooms) {
@@ -66,25 +61,8 @@ export default (server) => {
         }
         if (!results[roomName][round].includes("")) {
           curRound[roomName]++;
-          let roundResult = getRoundResult(
-            Object.values(results[roomName][round]),
-            round + 1
-          );
-          if (roomName in scores) {
-            scores[roomName][round] = roundResult;
-          } else {
-            scores[roomName] = [];
-            for (let i = 0; i < 10; i++) {
-              scores[roomName].push([0, 0, 0, 0]);
-            }
-            scores[roomName][round] = roundResult;
-          }
-
-          io.to(roomName).emit(
-            "show_round_score",
-            getRoundResult(Object.values(results[roomName][round]), round + 1)
-          );
-
+          scores[roomName][round] = getRoundResult(Object.values(results[roomName][round]), round + 1);
+          io.to(roomName).emit("show_round_score", getRoundResult(Object.values(results[roomName][round]), round + 1));
           io.to(roomName).emit("show_score", scores[roomName]);
           io.to(roomName).emit("show_select", results[roomName]);
         }
@@ -94,6 +72,12 @@ export default (server) => {
           results[roomName].push(["", "", "", ""]);
         }
         results[roomName][round][team - 1] = mycard;
+
+        scores[roomName] = [];
+        for (let i = 0; i < 10; i++) {
+          scores[roomName].push([0, 0, 0, 0]);
+        }
+        scores[roomName][round] = getRoundResult(Object.values(results[roomName][round]), round + 1);
       }
     });
 
