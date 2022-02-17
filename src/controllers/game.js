@@ -1,8 +1,6 @@
 import Channel from "../models/channel";
-import room from "../models/room";
 import Room from "../models/room";
 import Team from "../models/team";
-import User from "../models/user";
 
 export const getChannels = async (req, res, next) => {
   try {

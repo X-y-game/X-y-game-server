@@ -8,7 +8,6 @@ const teamSchema = new Schema(
       type: String,
       required: true,
     },
-    users: [{ type: mongoose.Types.ObjectId, ref: "User" }],
   },
   {
     timestamps: true,

@@ -14,20 +14,14 @@ import {
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.json({ title: "XY-game" });
-});
-
 router
   .route("/channel")
   .get(getChannels)
   .post(makeChannel)
   .delete(removeChannel);
-router.post("/room", makeRooms);
-router.delete("/room", deleteRoom);
+router.route("/room").post(makeRooms).delete(deleteRoom);
 router.get("/room/:channelId", getRooms);
+router.route("/team").post(makeTeams).delete(deleteTeam);
 router.get("/team/:roomId", getTeams);
-router.post("/team", makeTeams);
-router.delete("/team", deleteTeam);
 
 export default router;

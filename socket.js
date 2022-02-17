@@ -9,7 +9,6 @@ export default (server) => {
     },
   });
 
-  const room = io.of("/room");
   let activeRooms = {};
   let results = {};
   let scores = {};
@@ -32,7 +31,12 @@ export default (server) => {
 
     socket.on("select_team", (chId, roomId, roomName, teamId) => {
       let canStart = false;
-      if (chId === undefined || roomId === undefined || teamId === undefined || teamId === 0) {
+      if (
+        chId === undefined ||
+        roomId === undefined ||
+        teamId === undefined ||
+        teamId === 0
+      ) {
         return;
       }
       if (roomName in activeRooms) {
@@ -62,7 +66,10 @@ export default (server) => {
         }
         if (!results[roomName][round].includes("")) {
           curRound[roomName]++;
-          let roundResult = getRoundResult(Object.values(results[roomName][round]), round + 1);
+          let roundResult = getRoundResult(
+            Object.values(results[roomName][round]),
+            round + 1
+          );
           if (roomName in scores) {
             scores[roomName][round] = roundResult;
           } else {
@@ -73,7 +80,10 @@ export default (server) => {
             scores[roomName][round] = roundResult;
           }
 
-          io.to(roomName).emit("show_round_score", getRoundResult(Object.values(results[roomName][round]), round + 1));
+          io.to(roomName).emit(
+            "show_round_score",
+            getRoundResult(Object.values(results[roomName][round]), round + 1)
+          );
 
           io.to(roomName).emit("show_score", scores[roomName]);
           io.to(roomName).emit("show_select", results[roomName]);
