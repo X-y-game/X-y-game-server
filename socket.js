@@ -1,10 +1,11 @@
 import socketIo from "socket.io";
 import { getRoundResult } from "./src/controllers/result";
+import { MAX_ROUND, CLIENT_ENDPOINT } from "./src/constants";
 
 export default (server) => {
   const io = socketIo(server, {
     cors: {
-      origin: "http://localhost:3000",
+      origin: CLIENT_ENDPOINT,
       methods: ["GET", "POST"],
     },
   });
@@ -48,7 +49,7 @@ export default (server) => {
         activeRooms[roomName][teamId - 1] = 1;
       }
 
-      console.log(activeRooms, "active Romms");
+      console.log(activeRooms, "active Rooms");
     });
 
     socket.on("select_card", (roomName, team, round, mycard) => {
@@ -68,13 +69,13 @@ export default (server) => {
         }
       } else {
         results[roomName] = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < MAX_ROUND; i++) {
           results[roomName].push(["", "", "", ""]);
         }
         results[roomName][round][team - 1] = mycard;
 
         scores[roomName] = [];
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < MAX_ROUND; i++) {
           scores[roomName].push([0, 0, 0, 0]);
         }
         scores[roomName][round] = getRoundResult(Object.values(results[roomName][round]), round + 1);
