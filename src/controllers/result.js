@@ -1,7 +1,9 @@
+import { MAX_TEAM } from "../constants";
+
 // 카드 선택에 따른 점수 산출 유틸
 function getScore(x, y, data) {
   let score = [0, 0, 0, 0];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < MAX_TEAM; i++) {
     score[i] = data[i] === "X" ? x : y;
   }
   return score;
