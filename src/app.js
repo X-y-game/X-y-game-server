@@ -42,3 +42,5 @@ const handleListen = () =>
 const server = http.createServer(app);
 server.listen(process.env.PORT, handleListen);
 socket(server);
+
+module.exports = server;

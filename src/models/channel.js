@@ -14,6 +14,9 @@ const channelSchema = new Schema(
   },
   {
     timestamps: true,
+  },
+  {
+    versionKey: false,
   }
 );
 
