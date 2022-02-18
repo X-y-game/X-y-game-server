@@ -12,19 +12,20 @@ describe("MongoDB database", function () {
 
   let storedChannel = null;
 
-  const storedMockChannel = async () => {
-    const mockChannel = {
-      title: "4번 테스트 채널",
-      password: "test2345",
-      rooms: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    await new Channel(mockChannel).save();
+  const storedMockChannels = async () => {
+    for (let i = 0; i < mockChannels.length; i++) {
+      await new Channel(mockChannels[i]).save();
+    }
+  };
+
+  const deleteStoredMockChannels = async function () {
+    for (let i = 0; i < mockChannels.length; i++) {
+      await Channel.findByIdAndDelete(mockChannels[i]._id);
+    }
   };
 
   const fetchAllChannels = (done) => {
-    storedMockChannel().then(() => {
+    storedMockChannels().then(() => {
       Channel.find()
         .lean()
         .exec(function (err, channels) {
@@ -36,8 +37,11 @@ describe("MongoDB database", function () {
     });
   };
 
-  const deleteChannel = async function () {
-    await Channel.findOneAndDelete({ title: "4번 테스트 채널" });
+  const deleteAllChannels = (done) => {
+    deleteStoredMockChannels().then(() => {
+      storedChannel = null;
+      done();
+    });
   };
 
   before((done) => {
@@ -50,9 +54,9 @@ describe("MongoDB database", function () {
     })();
   });
 
-  describe(" GET `/channel`", () => {
+  describe("GET `/channel`", () => {
     beforeEach(fetchAllChannels);
-    afterEach(deleteChannel);
+    afterEach(deleteAllChannels);
 
     it("should get all channels from the DB and return in response", (done) => {
       const ObjectID = require("mongodb").ObjectId;
@@ -80,7 +84,7 @@ describe("MongoDB database", function () {
     });
   });
 
-  describe(" POST `/channel`", () => {
+  describe("POST `/channel`", () => {
     const deleteMockChannel = async function () {
       await Channel.findOneAndDelete({ title: "mockTest1" });
     };
@@ -109,6 +113,37 @@ describe("MongoDB database", function () {
           expect(newChannel).to.contain.property("title");
           expect(newChannel).to.contain.property("password");
           expect(newChannel).to.contain.property("rooms");
+
+          done();
+        });
+    });
+  });
+
+  describe("DELETE `/channel`", () => {
+    // channel Id 만 있으면 다 지운다.
+    beforeEach(fetchAllChannels);
+    afterEach(deleteAllChannels);
+
+    it("should deleted existing channel", (done) => {
+      const channelId = "620fc465637d51b9186caa7f";
+
+      request(app)
+        .delete("/channel")
+        .set("Accept", "application/json")
+        .send({ channelId: "620fc465637d51b9186caa7f" })
+        .expect(200)
+        .expect("Content-Type", /json/)
+        .end(async (err, res) => {
+          if (err) return done(err);
+
+          expect(res.body.message).to.exist;
+          expect(res.body.message).to.eql("success to delete");
+
+          const allChannels = await Channel.find();
+          const deletedChannel = await Channel.findOne({ _id: channelId });
+
+          expect(allChannels.length).to.eql(storedChannel.length - 1);
+          expect(deletedChannel).to.not.exist;
 
           done();
         });
