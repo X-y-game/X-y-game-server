@@ -59,6 +59,7 @@ describe("MongoDB database", function () {
       request(app)
         .get("/channel")
         .expect(200)
+        .expect("Content-type", /json/)
         .end((err, res) => {
           if (err) return done(err);
 
@@ -73,6 +74,41 @@ describe("MongoDB database", function () {
           expect(channels).to.exist;
           expect(Array.isArray(channels)).to.be.true;
           expect(res.text).to.include(storedChannel[0].title);
+
+          done();
+        });
+    });
+  });
+
+  describe(" POST `/channel`", () => {
+    const deleteMockChannel = async function () {
+      await Channel.findOneAndDelete({ title: "mockTest1" });
+    };
+    const newMockChannel = {
+      title: "mockTest1",
+      password: "q1w2e3",
+      rooms: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    afterEach(deleteMockChannel);
+
+    it("should add a newChannel into DB", (done) => {
+      request(app)
+        .post("/channel")
+        .send(newMockChannel)
+        .expect(201)
+        .end(async (err, res) => {
+          if (err) return done(err);
+
+          const newChannel = res.body.newChannel;
+
+          expect(newChannel).to.exist;
+          expect(newChannel).to.contain.property("_id");
+          expect(newChannel).to.contain.property("title");
+          expect(newChannel).to.contain.property("password");
+          expect(newChannel).to.contain.property("rooms");
 
           done();
         });
