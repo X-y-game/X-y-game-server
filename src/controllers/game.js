@@ -18,7 +18,7 @@ export const makeChannel = async (req, res, next) => {
       title,
       password,
     });
-    res.json({ message: "success", newChannel });
+    res.status(201).json({ message: "success", newChannel });
   } catch (error) {
     console.log(error);
     next(error);
