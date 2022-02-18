@@ -1,0 +1,12 @@
+[
+  {
+    "title": "1번 테스트 채널",
+    "password": "test1234",
+    "rooms": []
+  },
+  {
+    "title": "2번 테스트 채널",
+    "password": "test2345",
+    "rooms": []
+  }
+]
