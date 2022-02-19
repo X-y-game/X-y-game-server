@@ -8,7 +8,6 @@ import Room from "../src/models/room";
 describe("Room API", () => {
   const mockChannels = require("./channels.json");
 
-  let storedChannel = null;
   let storedRooms = null;
 
   const storedMockChannels = async () => {
@@ -25,12 +24,6 @@ describe("Room API", () => {
 
   const fetchAllRooms = (done) => {
     storedMockChannels().then(() => {
-      Channel.find()
-        .lean()
-        .exec(function (err, channels) {
-          if (err) return done(err);
-          storedChannel = JSON.parse(JSON.stringify(channels));
-        });
       Room.find()
         .lean()
         .exec(function (err, rooms) {
@@ -43,7 +36,6 @@ describe("Room API", () => {
 
   const deleteAllChannels = (done) => {
     deleteStoredMockChannels().then(() => {
-      storedChannel = null;
       storedRooms = null;
       done();
     });
