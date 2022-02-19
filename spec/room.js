@@ -4,7 +4,6 @@ import { expect } from "chai";
 import app from "../src/app";
 import Channel from "../src/models/channel";
 import Room from "../src/models/room";
-import channel from "../src/models/channel";
 
 describe("Room API", () => {
   const mockRooms = require("./room.json");
@@ -65,6 +64,7 @@ describe("Room API", () => {
     };
 
     after(deleteMockRoom);
+
     request(app)
       .post("/room")
       .send(newMockRoom)
@@ -118,5 +118,42 @@ describe("Room API", () => {
 
         done();
       });
+  });
+
+  describe("/room/:channelId", () => {
+    const mockChannelId = mongoose.Types.ObjectId("620fc465637d51b9186caa7f");
+    const mockRoomId = mongoose.Types.ObjectId("6211066c11e6dc045d7458ff");
+
+    const createMockRoom = async function () {
+      await Channel.findOneAndUpdate(
+        { _id: mockChannelId },
+        {
+          $push: { rooms: mockRoomId },
+        }
+      );
+    };
+
+    const deleteMockRoom = async function () {
+      await Channel.findOneAndDelete({ _id: mockChannelId });
+    };
+
+    beforeEach(createMockRoom);
+    afterEach(deleteMockRoom);
+    it("should response roomslist when give it to channelId", (done) => {
+      request(app)
+        .get(`/room/${mockChannelId}`)
+        .send({ channelId: mockChannelId })
+        .expect(200)
+        .end(async (err, res) => {
+          expect(res.body.roomLists).to.exist;
+          expect(Array.isArray(res.body.roomLists)).to.be.true;
+
+          const roomLists = res.body.roomLists;
+
+          expect(mongoose.Types.ObjectId(roomLists[0]._id)).to.eql(mockRoomId);
+
+          done();
+        });
+    });
   });
 });
