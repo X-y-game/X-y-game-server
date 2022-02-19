@@ -9,6 +9,7 @@ describe("Room API", () => {
   const mockChannels = require("./channels.json");
 
   let storedChannel = null;
+  let storedRooms = null;
 
   const storedMockChannels = async () => {
     for (let i = 0; i < mockChannels.length; i++) {
@@ -22,14 +23,19 @@ describe("Room API", () => {
     }
   };
 
-  const fetchAllChannels = (done) => {
+  const fetchAllRooms = (done) => {
     storedMockChannels().then(() => {
       Channel.find()
         .lean()
         .exec(function (err, channels) {
           if (err) return done(err);
           storedChannel = JSON.parse(JSON.stringify(channels));
-
+        });
+      Room.find()
+        .lean()
+        .exec(function (err, rooms) {
+          if (err) return done(err);
+          storedRooms = JSON.parse(JSON.stringify(rooms));
           done();
         });
     });
@@ -38,11 +44,12 @@ describe("Room API", () => {
   const deleteAllChannels = (done) => {
     deleteStoredMockChannels().then(() => {
       storedChannel = null;
+      storedRooms = null;
       done();
     });
   };
 
-  before(fetchAllChannels);
+  before(fetchAllRooms);
   after(deleteAllChannels);
 
   it("POST /room", (done) => {
@@ -77,8 +84,10 @@ describe("Room API", () => {
 
         expect(addedRoom).to.exist;
 
+        const allRooms = await Room.find({});
         const existChannel = await Channel.findById(mockChannelId);
         expect(existChannel.rooms[0]).to.eql(mongoose.Types.ObjectId(room._id));
+        expect(allRooms.length).to.eql(storedRooms.length + 1);
 
         done();
       });
