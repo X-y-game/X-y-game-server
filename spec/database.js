@@ -120,7 +120,6 @@ describe("MongoDB database", function () {
   });
 
   describe("DELETE `/channel`", () => {
-    // channel Id 만 있으면 다 지운다.
     beforeEach(fetchAllChannels);
     afterEach(deleteAllChannels);
 
