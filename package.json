@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon",
-    "test": "mocha --require @babel/register spec --sort"
+    "test": "mocha --require @babel/register spec --sort",
+    "start": "babel-node src/app.js"
   },
   "keywords": [],
   "author": "",
