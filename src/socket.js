@@ -1,6 +1,6 @@
 import socketIo from "socket.io";
-import { getRoundResult } from "./src/controllers/result";
-import { MAX_ROUND, CLIENT_ENDPOINT } from "./src/constants";
+import { getRoundResult } from "./controllers/result";
+import { MAX_ROUND, CLIENT_ENDPOINT } from "./constants";
 
 export default (server) => {
   const io = socketIo(server, {
@@ -32,7 +32,12 @@ export default (server) => {
 
     socket.on("select_team", (chId, roomId, roomName, teamId) => {
       let canStart = false;
-      if (chId === undefined || roomId === undefined || teamId === undefined || teamId === 0) {
+      if (
+        chId === undefined ||
+        roomId === undefined ||
+        teamId === undefined ||
+        teamId === 0
+      ) {
         return;
       }
       if (roomName in activeRooms) {
@@ -62,8 +67,14 @@ export default (server) => {
         }
         if (!results[roomName][round].includes("")) {
           curRound[roomName]++;
-          scores[roomName][round] = getRoundResult(Object.values(results[roomName][round]), round + 1);
-          io.to(roomName).emit("show_round_score", getRoundResult(Object.values(results[roomName][round]), round + 1));
+          scores[roomName][round] = getRoundResult(
+            Object.values(results[roomName][round]),
+            round + 1
+          );
+          io.to(roomName).emit(
+            "show_round_score",
+            getRoundResult(Object.values(results[roomName][round]), round + 1)
+          );
           io.to(roomName).emit("show_score", scores[roomName]);
           io.to(roomName).emit("show_select", results[roomName]);
         }
@@ -78,7 +89,10 @@ export default (server) => {
         for (let i = 0; i < MAX_ROUND; i++) {
           scores[roomName].push([0, 0, 0, 0]);
         }
-        scores[roomName][round] = getRoundResult(Object.values(results[roomName][round]), round + 1);
+        scores[roomName][round] = getRoundResult(
+          Object.values(results[roomName][round]),
+          round + 1
+        );
       }
     });
 
