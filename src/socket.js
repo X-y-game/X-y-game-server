@@ -3,7 +3,12 @@ import { getRoundResult } from "./controllers/result";
 import { MAX_ROUND, CLIENT_ENDPOINT } from "./constants";
 
 export default (server) => {
-  const io = socketIo(server, {});
+  const io = socketIo(server, {
+    cors: {
+      origin: CLIENT_ENDPOINT,
+      methods: ["GET", "POST"],
+    },
+  });
 
   let activeRooms = {};
   let results = {};
