@@ -70,11 +70,7 @@ export const makeRooms = async (req, res, next) => {
       { new: true }
     );
 
-<<<<<<< HEAD
-    res.json({ message: "success", newRoom });
-=======
     res.status(201).json({ message: "success", newRoom });
->>>>>>> dev
   } catch (error) {
     next(error);
   }
