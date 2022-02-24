@@ -7,6 +7,7 @@ export default (server) => {
     cors: {
       origin: CLIENT_ENDPOINT,
       methods: ["GET", "POST"],
+      credentials: true,
     },
   });
 
