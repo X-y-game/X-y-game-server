@@ -20,9 +20,10 @@ export default (server) => {
   io.on("connection", (socket) => {
     io.emit("info", { activeRooms, results, scores, curRound });
     socket.on("control", (data) => {
+      console.log(data.roomName);
       curRound[data.roomName] = data.round;
       io.emit("info", { activeRooms, results, scores, curRound });
-      io.to(data.roomName).emit("cur_round", curRound[data.roomName]);
+      io.to(data.roomName).emit("cur_round", curRound);
       if (data.round === 1) {
         io.to(data.roomName).emit("setGame", data.roomName);
       }
@@ -33,6 +34,7 @@ export default (server) => {
       delete curRound[roomName];
       delete results[roomName];
       delete scores[roomName];
+      console.log(results, scores);
       io.emit("info", { activeRooms, results, scores, curRound });
     });
 
@@ -44,7 +46,7 @@ export default (server) => {
       socket.join(roomName);
 
       if (roomName in curRound) {
-        io.to(roomName).emit("cur_round", curRound[roomName]);
+        io.to(roomName).emit("cur_round", curRound);
       }
 
       if (roomName in results) {
