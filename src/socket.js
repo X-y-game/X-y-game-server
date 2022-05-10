@@ -84,6 +84,7 @@ export default (server) => {
     socket.on("select_card", (roomName, team, round, choice) => {
       if (roomName in results) {
         results[roomName][round - 1][team - 1] = choice;
+        io.to(roomName).emit("show_select", results[roomName]);
 
         // 4팀 완료
         if (!results[roomName][round - 1].includes("")) {
@@ -92,7 +93,6 @@ export default (server) => {
 
           io.to(roomName).emit("show_round_score", getRoundResult(Object.values(results[roomName][round - 1]), round));
           io.to(roomName).emit("show_score", scores[roomName]);
-          io.to(roomName).emit("show_select", results[roomName]);
         }
       } else {
         results[roomName] = [];
